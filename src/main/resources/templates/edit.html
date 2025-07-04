@@ -12,8 +12,11 @@
 <div class="main-contents">
   <form th:action="@{/update/{id}(id=${formModel.id})}" th:object="${formModel}" th:method="put">
     <div class="form-area">
+      <span th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="error"></span>
       <label>投稿内容</label>
       <textarea class="tweet-box" name="content" th:field="*{content}" size="20" maxlength="200" /></textarea><br/>
+      <input type="hidden" name="createdDate" th:field="*{createdDate}">
+      <input type="hidden" name="updatedDate" th:field="*{updatedDate}">
       <input type="submit" value="更新"/>
     </div>
   </form>

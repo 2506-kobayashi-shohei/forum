@@ -6,9 +6,12 @@ import com.example.forum.service.CommentService;
 import com.example.forum.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -25,22 +28,23 @@ public class ForumController {
      * 投稿内容表示処理
      */
     @GetMapping/*コンテキストルートなので、URLパターンは載せない。*/
-    public ModelAndView top() {
+    public ModelAndView top(@RequestParam(value="start",required=false)LocalDate start,
+                            @RequestParam(value="end",required=false)LocalDate end) {
         ModelAndView mav = new ModelAndView();
         // 投稿を全件取得
-        List<ReportForm> contentData = reportService.findAllReport();
+        List<ReportForm> contentData = reportService.findAllReport(start,end);
         //コメントフォームを表示するための、空のCommentFormを作成
         CommentForm commentForm = new CommentForm();
         //コメントを全件取得
         List<CommentForm> commetData = commentService.findAllComment();
-        Map<String,LocalDateTime> times = new HashMap<>();
         // 画面遷移先を指定
         mav.setViewName("/top");
         // 投稿データオブジェクトを保管
         mav.addObject("contents", contentData);
         mav.addObject("commentModel", commentForm);
         mav.addObject("comments", commetData);
-        mav.addObject("dateModel", times);
+        mav.addObject("start", start);
+        mav.addObject("end", end);
         return mav;
     }
 
@@ -50,7 +54,7 @@ public class ForumController {
          * 記述方法に違いがあるだけで、役割としては変わらない*/
         /*Modelを使うとすれば、
          * public String XXXXX(Model model){}みたいになる。
-         * 下みたいにnewはしなくていい。*/
+         * この場合下みたいにnewはしなくていい。*/
         ModelAndView mav = new ModelAndView();
         // form用の空のentityを準備
         ReportForm reportForm = new ReportForm();
@@ -62,7 +66,11 @@ public class ForumController {
     }
 
     @PostMapping("/add")
-    public ModelAndView addContent(@ModelAttribute("formModel") ReportForm reportForm) {
+    public ModelAndView addContent(@Validated @ModelAttribute("formModel") ReportForm reportForm,
+                                   BindingResult result) {
+        if(result.hasErrors()){
+            return new ModelAndView("/new");
+        }
         // 投稿をテーブルに格納
         reportService.saveReport(reportForm);
         // rootへリダイレクト
@@ -99,8 +107,12 @@ public class ForumController {
     }
     @PutMapping("/update/{id}")
     public ModelAndView updateContent(@PathVariable Integer id,
-                                      @ModelAttribute("formModel") ReportForm report){
+                                      @Validated @ModelAttribute("formModel") ReportForm report,
+                                      BindingResult result){
         /*@ModelAttributeはフロント側から何かもらってきたい時に使う。*/
+        if(result.hasErrors()){
+            return new ModelAndView("/edit");
+        }
         report.setId(id);
         reportService.saveReport(report);
         return new ModelAndView("redirect:/");
@@ -115,6 +127,8 @@ public class ForumController {
                                    @ModelAttribute("commentModel") CommentForm comment){
         comment.setReportId(ReportId);
         commentService.saveComment(comment);
+        ReportForm report = reportService.getReportById(ReportId);
+        reportService.saveReport(report);
         return new ModelAndView("redirect:/");
     }
     /*コメントの編集*/

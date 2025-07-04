@@ -26,5 +26,8 @@ public class Report {
     private String content;
 
     @Column
+    private LocalDateTime createdDate;
+
+    @Column
     private LocalDateTime updatedDate;
 }

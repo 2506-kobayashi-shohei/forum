@@ -13,9 +13,9 @@
   <a href="/new">
     <button class="new-button" type="button">新規投稿</button>
   </a>
-  <form method="post" action="/top" th:object="${dateModel}">
+  <form method="get" action="/">
     <div class="date-search">
-      日付；<input type="date" th:field="${start}"/>～<input type="date" th:field="${end}"/>
+      日付：<input type="date" name="start" th:value="${start}"/>～<input type="date" name="end" th:value="${end}"/>
       <input type="submit" value="絞り込み" />
     </div>
   </form>
@@ -28,7 +28,8 @@
       投稿 : <span th:text="${content.content}"/>
     </div>
     <div class="date">
-      <span th:text="${content.updatedDate}"/>
+      投稿日時：<span th:text="*{#temporals.format(content.createdDate, 'yyyy/MM/dd HH:mm:ss')}"/><br/>
+      更新日時：<span th:text="*{#temporals.format(content.updatedDate, 'yyyy/MM/dd HH:mm:ss')}"/>
     </div>
     <div class="edit-button">
       <form th:action="@{/edit/{id}(id=${content.id})}">
@@ -66,7 +67,6 @@
         <div class="form-area">
           <label>コメント</label>
           <textarea class="comment-box" th:field="*{content}" size="20" maxlength="200" /></textarea><br/>
-          <!--後で、th:field="*{content}"みたいなのを足す-->
           <input type="submit" value="コメントを投稿" />
         </div>
       </form>
