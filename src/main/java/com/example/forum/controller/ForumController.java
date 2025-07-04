@@ -124,7 +124,11 @@ public class ForumController {
     /*新規コメント追加*/
     @PostMapping("/addComment/{ReportId}")
     public ModelAndView addComment(@PathVariable Integer ReportId,
-                                   @ModelAttribute("commentModel") CommentForm comment){
+                                   @Validated @ModelAttribute("commentModel") CommentForm comment,
+                                   BindingResult result){
+        if(result.hasErrors()){
+            return new ModelAndView("/top");
+        }
         comment.setReportId(ReportId);
         commentService.saveComment(comment);
         ReportForm report = reportService.getReportById(ReportId);
@@ -146,8 +150,12 @@ public class ForumController {
     }
     @PutMapping("/updateComment/{id}")
     public ModelAndView updateComment(@PathVariable Integer id,
-                                      @ModelAttribute("formModel") CommentForm comment){
+                                      @Validated @ModelAttribute("formModel") CommentForm comment,
+                                      BindingResult result){
         /*@ModelAttributeはフロント側から何かもらってきたい時に使う。*/
+        if(result.hasErrors()){
+            return new ModelAndView("/editComment");
+        }
         comment.setId(id);
         commentService.saveComment(comment);
         return new ModelAndView("redirect:/");
