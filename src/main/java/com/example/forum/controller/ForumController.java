@@ -135,7 +135,11 @@ public class ForumController {
             mav.setViewName("/top");
             // 投稿データオブジェクトを保管
             mav.addObject("contents", contentData);
-            mav.addObject("commentModel", comment);
+            /*普通のトップ画面を表示するときには、"commentModel"をnewして空のものを詰めていた。
+            * しかし今回は、もう引っ張ってきたやつに対して@Validatedをつけているわけだから、
+            * hasErrorの対象も引数のcommentについている。
+            * だから、空っぽのcommentを詰めてもエラーメッセージは表示されない
+            * また、mav.addObject("commentModel", comment);みたいに改めて詰めなくていい*/
             mav.addObject("comments", commetData);
             mav.addObject("start", start);
             mav.addObject("end", end);
