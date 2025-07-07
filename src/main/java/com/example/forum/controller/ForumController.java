@@ -34,14 +34,14 @@ public class ForumController {
         // 投稿を全件取得
         List<ReportForm> contentData = reportService.findAllReport(start,end);
         //コメントフォームを表示するための、空のCommentFormを作成
-        CommentForm commentForm = new CommentForm();
+        CommentForm comment = new CommentForm();
         //コメントを全件取得
         List<CommentForm> commetData = commentService.findAllComment();
         // 画面遷移先を指定
         mav.setViewName("/top");
         // 投稿データオブジェクトを保管
         mav.addObject("contents", contentData);
-        mav.addObject("commentModel", commentForm);
+        mav.addObject("commentModel", comment);
         mav.addObject("comments", commetData);
         mav.addObject("start", start);
         mav.addObject("end", end);
@@ -122,16 +122,32 @@ public class ForumController {
     コメントに関する機能
     */
     /*新規コメント追加*/
-    @PostMapping("/addComment/{ReportId}")
-    public ModelAndView addComment(@PathVariable Integer ReportId,
+    @PostMapping("/addComment/{reportId}")
+    public ModelAndView addComment(@PathVariable Integer reportId,
                                    @Validated @ModelAttribute("commentModel") CommentForm comment,
-                                   BindingResult result){
+                                   BindingResult result,
+                                   @RequestParam(value="start",required=false)LocalDate start,
+                                   @RequestParam(value="end",required=false)LocalDate end){
         if(result.hasErrors()){
-            return new ModelAndView("/top");
+            ModelAndView mav = new ModelAndView();
+            // 投稿を全件取得
+            List<ReportForm> contentData = reportService.findAllReport(start,end);
+            //コメントを全件取得
+            List<CommentForm> commetData = commentService.findAllComment();
+            // 画面遷移先を指定
+            mav.setViewName("/top");
+            // 投稿データオブジェクトを保管
+            mav.addObject("contents", contentData);
+            mav.addObject("commentModel", comment);
+            mav.addObject("comments", commetData);
+            mav.addObject("start", start);
+            mav.addObject("end", end);
+            mav.addObject("reportID", reportId);
+            return mav;
         }
-        comment.setReportId(ReportId);
+        comment.setReportId(reportId);
         commentService.saveComment(comment);
-        ReportForm report = reportService.getReportById(ReportId);
+        ReportForm report = reportService.getReportById(reportId);
         reportService.saveReport(report);
         return new ModelAndView("redirect:/");
     }

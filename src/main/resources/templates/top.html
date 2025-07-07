@@ -63,8 +63,9 @@
       </div>
     </div>
     <div class="add-comment">
-      <form method="post" th:action="@{/addComment/{ReportId}(ReportId=${content.id})}" th:object="${commentModel}">
+      <form method="post" th:action="@{/addComment/{reportId}(reportId=${content.id})}" th:object="${commentModel}">
         <div class="form-area">
+          <span th:if="${#fields.hasErrors('content')} and ${reportID}==${content.id}" th:errors="*{content}" class="error"></span>
           <label>コメント</label>
           <textarea class="comment-box" th:field="*{content}" size="20" maxlength="200" /></textarea><br/>
           <input type="submit" value="コメントを投稿" />
