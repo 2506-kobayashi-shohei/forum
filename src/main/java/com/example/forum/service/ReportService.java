@@ -1,10 +1,12 @@
 package com.example.forum.service;
 
 import com.example.forum.controller.form.ReportForm;
+import com.example.forum.repository.ReportMapper;
 import com.example.forum.repository.ReportRepository;
 import com.example.forum.repository.entity.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +17,8 @@ import java.util.List;
 public class ReportService {
     @Autowired
     ReportRepository reportRepository;
+    @Autowired
+    ReportMapper reportMapper;
 
     /*
      * レコード全件取得処理
@@ -28,7 +32,7 @@ public class ReportService {
         if (end != null){
             endTime = end.atTime(23, 59, 59);
         }
-        List<Report> results = reportRepository.findByUpdatedDateBetweenOrderByUpdatedDateDesc(startTime, endTime);
+        List<Report> results = reportMapper.findAllReport(startTime, endTime);
         List<ReportForm> reports = setReportForm(results);
         return reports;
     }
