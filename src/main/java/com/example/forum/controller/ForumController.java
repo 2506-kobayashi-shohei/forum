@@ -111,7 +111,7 @@ public class ForumController {
             return new ModelAndView("/edit");
         }
         report.setId(id);
-        reportService.saveReport(report);
+        reportService.editReport(report);
         return new ModelAndView("redirect:/");
     }
 
@@ -149,7 +149,7 @@ public class ForumController {
         comment.setReportId(reportId);
         commentService.saveComment(comment);
         ReportForm report = reportService.getReportById(reportId);
-        reportService.saveReport(report);
+        reportService.editReport(report);
         return new ModelAndView("redirect:/");
     }
     /*コメントの編集*/

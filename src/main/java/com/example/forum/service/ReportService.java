@@ -2,21 +2,18 @@ package com.example.forum.service;
 
 import com.example.forum.controller.form.ReportForm;
 import com.example.forum.repository.ReportMapper;
-import com.example.forum.repository.ReportRepository;
 import com.example.forum.repository.entity.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class ReportService {
-    @Autowired
-    ReportRepository reportRepository;
     @Autowired
     ReportMapper reportMapper;
 
@@ -32,7 +29,7 @@ public class ReportService {
         if (end != null){
             endTime = end.atTime(23, 59, 59);
         }
-        List<Report> results = reportMapper.findAllReport(startTime, endTime);
+        List<Report> results = reportMapper.findAllReport(startTime,endTime);
         List<ReportForm> reports = setReportForm(results);
         return reports;
     }
@@ -53,15 +50,13 @@ public class ReportService {
         return reports;
     }
     /*
-     * レコード追加(編集でも使う※saveはinsertもupdateも兼ねているから)
+     * レコード追加
      */
     public void saveReport(ReportForm reqReport) {
-        if (reqReport.getCreatedDate() == null){
-            reqReport.setCreatedDate(LocalDateTime.now());
-        }
+        reqReport.setCreatedDate(LocalDateTime.now());
         reqReport.setUpdatedDate(LocalDateTime.now());
         Report saveReport = setReportEntity(reqReport);
-        reportRepository.save(saveReport);
+        reportMapper.insert(saveReport);
     }
 
     /*
@@ -80,7 +75,7 @@ public class ReportService {
     *削除機能
     */
     public void deleteReport(Integer id) {
-        reportRepository.deleteById(id);
+        reportMapper.deleteById(id);
     }
     /*
     編集画面にデータを表示
@@ -89,9 +84,16 @@ public class ReportService {
      * レコード1件取得
      */
     public ReportForm getReportById(Integer id) {
-        List<Report> results = new ArrayList<>();
-        results.add((Report) reportRepository.findById(id).orElse(null));
+        List<Report> results = reportMapper.findById(id);
         List<ReportForm> reports = setReportForm(results);
         return reports.get(0);
+    }
+    /*
+     * レコード編集でも使う
+     */
+    public void editReport(ReportForm reqReport) {
+        reqReport.setUpdatedDate(LocalDateTime.now());
+        Report saveReport = setReportEntity(reqReport);
+        reportMapper.save(saveReport);
     }
 }
