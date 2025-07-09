@@ -1,7 +1,7 @@
 package com.example.forum.service;
 
 import com.example.forum.controller.form.CommentForm;
-import com.example.forum.repository.CommentRepository;
+import com.example.forum.repository.CommentMapper;
 import com.example.forum.repository.entity.Comment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,12 +12,12 @@ import java.util.List;
 @Service
 public class CommentService {
     @Autowired
-    CommentRepository commentRepository;
+    CommentMapper commentMapper;
     /*
      * レコード全件取得処理
      */
     public List<CommentForm> findAllComment() {
-        List<Comment> results = commentRepository.findAll();
+        List<Comment> results = commentMapper.findAll();
         List<CommentForm> comments = setCommentForm(results);
         return comments;
     }
@@ -36,10 +36,10 @@ public class CommentService {
         }
         return reports;
     }
-    /*新規コメント登録と、編集後のコメントの登録*/
+    /*新規コメント登録と*/
     public void saveComment(CommentForm reqComment){
         Comment saveComment = setCommentEntity(reqComment);
-        commentRepository.save(saveComment);
+        commentMapper.insert(saveComment);
     }
     /*取得したコメントをEntityに変換*/
     private Comment setCommentEntity(CommentForm reqComment){
@@ -49,15 +49,19 @@ public class CommentService {
         comment.setContent(reqComment.getContent());
         return comment;
     }
-    /*コメント編集（画面表示）（更新処理は登録処理と一緒）*/
+    /*コメント編集（画面表示）*/
     public CommentForm getCommentById(Integer id) {
-        List<Comment> results = new ArrayList<>();
-        results.add((Comment) commentRepository.findById(id).orElse(null));
+        List<Comment> results = commentMapper.findById(id);
         List<CommentForm> comments = setCommentForm(results);
         return comments.get(0);
     }
+    /*編集後のコメントの登録*/
+    public void editComment(CommentForm reqComment){
+        Comment saveComment = setCommentEntity(reqComment);
+        commentMapper.save(saveComment);
+    }
     /*コメント削除処理*/
     public void deleteComment(Integer id) {
-        commentRepository.deleteById(id);
+        commentMapper.deleteById(id);
     }
 }
